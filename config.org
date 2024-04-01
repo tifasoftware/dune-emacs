@@ -60,7 +60,7 @@
   (use-package evil-collection
     :after evil
     :config
-    (setq evil-collection-mode-list '(dashboard dired ibuffer magit))
+    (setq evil-collection-mode-list '(dashboard dired ibuffer magit vterm))
     (evil-collection-init))
   (use-package evil-tutor)
 #+end_src
@@ -446,9 +446,24 @@ Completion Engine
 
 *** Vterm
 #+begin_src emacs-lisp
-  (use-package vterm
-  :config
-  (setq vterm-max-scrollback 5000))
+(use-package vterm
+:config
+(setq vterm-max-scrollback 5000)
+(setq evil-insert-state-cursor '(bar "#00FF00")
+    evil-visual-state-cursor '(box "#FF00FF")
+    evil-normal-state-cursor '(box "#E2E8EF"))
+;(evil-define-key 'normal vterm-mode-map "h" 'vterm-send-left)
+;(evil-define-key 'normal vterm-mode-map "l" 'vterm-send-right)
+;(evil-define-key 'normal vterm-mode-map "b" 'vterm-send-M-b)
+;(evil-define-key 'normal vterm-mode-map "e" 'vterm-send-M-f)
+;(evil-define-key 'normal vterm-mode-map "db" 'vterm-send-C-w)
+;(evil-define-key 'normal vterm-mode-map "de" 'vterm-send-M-d)
+;(evil-define-key 'normal vterm-mode-map "p" 'vterm-yank)
+;(evil-define-key 'normal vterm-mode-map "P" '(lambda ()
+;                                               (interactive)
+;                                               (vterm-send-C-b)
+;                                               (vterm-yank)))
+)
 #+end_src
 
 *** Vterm-Toggle
