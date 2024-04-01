@@ -1,0 +1,696 @@
+#+TITLE:Dune Emacs Config
+#+AUTHOR: Infilit
+#+DESCRIPTION: Dume Emacs Default Config
+#+STARTUP: showeverything
+#+OPTIONS: toc:2
+
+* Table of Contents :toc:
+- [[#critical-mods][Critical Mods]]
+- [[#evil-mode][Evil Mode]]
+- [[#general-keybindings][General Keybindings]]
+- [[#emacs-as-desktop-session][Emacs as Desktop Session]]
+  - [[#exwm][EXWM]]
+- [[#complimentary-mods][Complimentary Mods]]
+  - [[#backup][Backup]]
+  - [[#company][Company]]
+  - [[#ivy--counsel][Ivy + Counsel]]
+  - [[#dired][Dired]]
+  - [[#git][Git]]
+  - [[#neotree][Neotree]]
+  - [[#projectile][Projectile]]
+  - [[#rss][RSS]]
+  - [[#shells-and-terminals][Shells and Terminals]]
+  - [[#sudo-edit][Sudo Edit]]
+  - [[#whichkey][WhichKey]]
+  - [[#www][WWW]]
+- [[#org-mode-mods][Org Mode Mods]]
+  - [[#org-table-of-contents][Org Table of Contents]]
+  - [[#bullets][Bullets]]
+  - [[#electric-indent][Electric Indent]]
+  - [[#org-tempo][Org Tempo]]
+- [[#language-support][Language Support]]
+  - [[#diminish][Diminish]]
+  - [[#flycheck][Flycheck]]
+- [[#customization][Customization]]
+  - [[#app-launcher][App Launcher]]
+  - [[#colors][Colors]]
+  - [[#dashboard][Dashboard]]
+  - [[#fonts][Fonts]]
+  - [[#title][Title]]
+  - [[#tweaks][Tweaks]]
+- [[#functions][Functions]]
+  - [[#reload-init-file-reload-config][reload-init-file: Reload Config]]
+  - [[#buffer-move][Buffer Move]]
+
+* Critical Mods
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.config/emacs/scripts/")
+(require 'elpaca-setup)
+#+end_src
+
+* Evil Mode
+#+begin_src emacs-lisp
+ (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    (setq evil-vsplit-window-right t)
+    (setq evil-split-window-below t)
+    (evil-mode))
+  (use-package evil-collection
+    :after evil
+    :config
+    (setq evil-collection-mode-list '(dashboard dired ibuffer magit))
+    (evil-collection-init))
+  (use-package evil-tutor)
+#+end_src
+
+* General Keybindings
+#+begin_src emacs-lisp
+(use-package general
+  :config
+  (general-evil-setup)
+  (general-create-definer dune/leader-keys
+  :states '(normal insert visual emacs)
+  :keymaps 'override
+  :prefix "SPC"
+  :global-prefix "M-SPC")
+
+  ;Buffer Keybinds
+  (dune/leader-keys
+      "b"  '(:ignore t :wk "Buffer")
+      "bb" '(switch-to-buffer :wk "Switch buffer")
+      "bk" '(kill-this-buffer :wk "Kill this buffer")
+      "bn" '(next-buffer :wk "Next Buffer")
+      "bp" '(previous-buffer :wk "Previous Buffer")
+      "br" '(revert-buffer :wk "Reload Buffer")
+      "bi" '(ibuffer :wk "List Buffer"))
+  ;File Keybinds
+    (dune/leader-keys
+      "SPC" '(counsel-M-x :wk "Counsel M-x")
+      "."  '(find-file :wk "Open File")
+      "TAB TAB" '(comment-line :wk "Comment lines")
+      "f"  '(:ignore t :wk "File")
+      "fr" '(counsel-recentf :wk "Open Recent File")
+      "fo" '(find-file :wk "Open File"))
+  ;Directory Keybind
+  (dune/leader-keys
+      "d"  '(:ignore t :wk "Directory")
+      "dd" '(dired :wk "Open dired")
+      "dj" '(dired-jump :wk "Dired jump to current")
+      "dt" '(neotree-dir :wk "Open directory as tree")
+      "dp" '(peep-dired :wk "Dired previews"))
+  ;Evaluate Keybinds
+    (dune/leader-keys
+      "e"  '(:ignore t :wk "Evaluate")
+      "eb" '(eval-buffer :wk "Evaluate Buffer")
+      "ed" '(eval-defun :wk "Evualuate Defun")
+      "ee" '(eval-expression :wk "Evaluate Expression")
+      "el" '(eval-last-sexp :wk "Evaluate Expression before point")
+      "er" '(eval-region :wk "Evaluate Region")
+      "es" '(eshell :wk "Open Eshell"))
+  ;ORG Keybind
+    (dune/leader-keys
+      "m"  '(:ignore t :wk "Org")
+      "ma" '(org-agenda :wk "Org agenda")
+      "me" '(org-export-dispatch :wk "Org export")
+      "mi" '(org-toggle-item :wk "Org toggle")
+      "mt" '(org-todo :wk "Org todo")
+      "mB" '(org-babel-tangle :wk "Org babel tangle")
+      "mT" '(org-todo-list :wk "Org todo list"))
+    (dune/leader-keys
+      "mb"  '(:ignore t :wk "Tables")
+      "mb-" '(org-table-insert-hline :wk "Insert hline in table"))
+    (dune/leader-keys
+      "md"  '(:ignore t :wk "Date/deadline")
+      "mdt" '(org-time-stamp :wk "Org time stamp"))
+  ;System Keybinds
+    (dune/leader-keys
+      "s"  '(:ignore t :wk "System")
+      "sq" '(evil-quit-all :wk "Quit Emacs")
+      "sr" '(reload-init-file :wk "Reload Config")
+      "sl" '(display-line-numbers-mode :wk "Toggle Line Numbers")
+      "sv" '(visual-line-mode :wk "Toggle truncated lines")
+      "sc" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit Dune Emacs Config")
+      "st" '(load-theme :wk "Apply Color Scheme")
+      "sh" '(vterm-toggle :wk "Toggle Terminal"))
+  ;Help Keybinds
+    (dune/leader-keys
+      "h"  '(:ignore t :wk "Help")
+      "hf" '(describe-function :wk "Describe function")
+      "hv" '(describe-variable :wk "Describe variable"))
+  ;Window Keybinds
+    (dune/leader-keys
+      "w"  '(:ignore t :wk "Window")
+      ;Splits
+      "wc" '(evil-window-delete :wk "Close window")
+      "wn" '(evil-window-new :wk "New window")
+      "ws" '(evil-window-split :wk "Horizontal split window")
+      "wv" '(evil-window-vsplit :wk "Vertical split window")
+      ;Motions
+      "wh" '(evil-window-left :wk "Window left")
+      "wj" '(evil-window-down :wk "Window down")
+      "wk" '(evil-window-up :wk "Window up")
+      "wl" '(evil-window-right :wk "Window Right")
+      "ww" '(evil-window-next :wk "Goto next window")
+      ;Move
+      "wH" '(buf-move-left :wk "Buffer move left")
+      "wJ" '(buf-move-down :wk "Buffer move down")
+      "wK" '(buf-move-up :wk "Buffer move up")
+      "wL" '(buf-move-right :wk "Buffer move right"))
+)
+#+end_src
+
+* Emacs as Desktop Session
+** EXWM
+#+begin_src emacs-lisp
+  (use-package exwm
+    :init
+
+  (fringe-mode 1)
+
+  ;; Turn on `display-time-mode' if you don't use an external bar.
+  (setq display-time-default-load-average nil)
+  (display-time-mode t)
+
+  ;; You are strongly encouraged to enable something like `ido-mode' to alter
+  ;; the default behavior of 'C-x b', or you will take great pains to switch
+  ;; to or back from a floating frame (remember 'C-x 5 o' if you refuse this
+  ;; proposal however).
+  ;; You may also want to call `exwm-config-ido' later (see below).
+  (ido-mode 1)
+
+  ;; Emacs server is not required to run EXWM but it has some interesting uses
+  ;; (see next section).
+  (server-start)
+
+  ;;;; Below are configurations for EXWM.
+
+  ;; Add paths (not required if EXWM is installed from GNU ELPA).
+  ;(add-to-list 'load-path "/path/to/xelb/")
+  ;(add-to-list 'load-path "/path/to/exwm/")
+
+  ;; Load EXWM.
+  (require 'exwm)
+
+  ;; Fix problems with Ido (if you use it).
+  (require 'exwm-config)
+  (exwm-config-ido)
+
+  :config
+  ;; Set the initial number of workspaces (they can also be created later).
+  (setq exwm-workspace-number 4)
+
+  ;; All buffers created in EXWM mode are named "*EXWM*". You may want to
+  ;; change it in `exwm-update-class-hook' and `exwm-update-title-hook', which
+  ;; are run when a new X window class name or title is available.  Here's
+  ;; some advice on this topic:
+  ;; + Always use `exwm-workspace-rename-buffer` to avoid naming conflict.
+  ;; + For applications with multiple windows (e.g. GIMP), the class names of
+  ;    all windows are probably the same.  Using window titles for them makes
+  ;;   more sense.
+  ;; In the following example, we use class names for all windows except for
+  ;; Java applications and GIMP.
+  (add-hook 'exwm-update-class-hook
+	    (lambda ()
+	      (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+			  (string= "gimp" exwm-instance-name))
+		(exwm-workspace-rename-buffer exwm-class-name))))
+  (add-hook 'exwm-update-title-hook
+	    (lambda ()
+	      (when (or (not exwm-instance-name)
+			(string-prefix-p "sun-awt-X11-" exwm-instance-name)
+			(string= "gimp" exwm-instance-name))
+		(exwm-workspace-rename-buffer exwm-title))))
+
+  ;; Global keybindings can be defined with `exwm-input-global-keys'.
+  ;; Here are a few examples:
+  (setq exwm-input-global-keys
+	`(
+	  ;; Bind "s-r" to exit char-mode and fullscreen mode.
+	  ([?\s-r] . exwm-reset)
+	  ;; Bind "s-w" to switch workspace interactively.
+	  ([?\s-w] . exwm-workspace-switch)
+	  ;; Switch between line-mode and char-mode
+	  ([?\s-g] . exwm-input-toggle-keyboard)
+	  ;; Bind "s-0" to "s-9" to switch to a workspace by its index.
+	  ,@(mapcar (lambda (i)
+		      `(,(kbd (format "s-%d" i)) .
+			(lambda ()
+			  (interactive)
+			  (exwm-workspace-switch-create ,i))))
+		    (number-sequence 0 9))
+	  ;; Bind "s-&" to launch applications ('M-&' also works if the output
+	  ;; buffer does not bother you).
+	  ([?\s-&] . (lambda (command)
+		       (interactive (list (read-shell-command "$ ")))
+		       (start-process-shell-command command nil command)))
+	  ;; Bind "s-<f2>" to "slock", a simple X display locker.
+	  ([s-f2] . (lambda ()
+		      (interactive)
+		      (start-process "" nil "/usr/bin/slock")))))
+
+  ;; To add a key binding only available in line-mode, simply define it in
+  ;; `exwm-mode-map'.  The following example shortens 'C-c q' to 'C-q'.
+  (define-key exwm-mode-map [?\C-q] #'exwm-input-send-next-key)
+
+  ;; The following example demonstrates how to use simulation keys to mimic
+  ;; the behavior of Emacs.  The value of `exwm-input-simulation-keys` is a
+  ;; list of cons cells (SRC . DEST), where SRC is the key sequence you press
+  ;; and DEST is what EXWM actually sends to application.  Note that both SRC
+  ;; and DEST should be key sequences (vector or string).
+  (setq exwm-input-simulation-keys
+	'(
+	  ;; movement
+	  ([?\C-b] . [left])
+	  ([?\M-b] . [C-left])
+	  ([?\C-f] . [right])
+	  ([?\M-f] . [C-right])
+	  ([?\C-p] . [up])
+	  ([?\C-n] . [down])
+	  ([?\C-a] . [home])
+	  ([?\C-e] . [end])
+	  ([?\M-v] . [prior])
+	  ([?\C-v] . [next])
+	  ([?\C-d] . [delete])
+	  ([?\C-k] . [S-end delete])
+	  ;; cut/paste.
+	  ([?\C-w] . [?\C-x])
+	  ([?\M-w] . [?\C-c])
+	  ([?\C-y] . [?\C-v])
+	  ;; search
+	  ([?\C-s] . [?\C-f])))
+
+  ;; You can hide the minibuffer and echo area when they're not used, by
+  ;; uncommenting the following line.
+  ;(setq exwm-workspace-minibuffer-position 'bottom)
+
+  ;; Do not forget to enable EXWM. It will start by itself when things are
+  ;; ready.  You can put it _anywhere_ in your configuration.
+  (dune/leader-keys
+    "sp"  '(counsel-linux-app :wk "Open Application"))
+  (exwm-enable))
+#+end_src
+
+* Complimentary Mods
+** Backup
+#+begin_src emacs-lisp
+(setq backup-directory-alist '((".*" . "~/.local/share/Trash/files")))
+#+end_src
+
+** Company
+Completion Engine
+#+begin_src emacs-lisp
+(use-package company
+  :defer 2
+  :diminish
+  :custom
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay .1)
+  (company-minimum-prefix-length 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
+  (global-company-mode t))
+
+(use-package company-box
+  :after company
+  :diminish
+  :hook (company-mode . company-box-mode))
+#+end_src
+
+** Ivy + Counsel
++ Ivy is a completion plugin
++ Counsel is a collection of Ivy-enhaced version of command commands
++ Ivy-rich adds descriptions alongside the commands in M-x
++ These mods offer an experience similar to Doom Emacs, Spacemacs, or DT's Emacs (which this project is based from his tutorials)
+
+#+begin_src emacs-lisp
+  (use-package counsel
+    :after ivy
+    :diminish
+    :config (counsel-mode))
+
+  (use-package ivy
+    :bind
+    (("C-c C-r" . ivy-resume)
+     ("C-x B" . ivy-switch-buffer-other-window))
+    :diminish
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t)
+    :config
+    (ivy-mode))
+
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :init (all-the-icons-ivy-rich-mode 1))
+
+  (use-package ivy-rich
+    :after ivy
+    :ensure t
+    :init (ivy-rich-mode 1)
+    :custom
+    (ivy-virtual-abbreviate 'full
+     ivy-rich-switch-buffer-align-virtual-buffer t
+     ivy-rich-path-stle 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buufer-tranformer))
+
+#+end_src
+
+** Dired
+#+begin_src emacs-lisp
+(use-package dired-open
+  :config
+  (setq dired-open-extensions '(("gif" . "feh")
+                                ("jpg" . "feh")
+                                ("png" . "feh")
+                                ("mkv" . "mpv")
+                                ("mp4" . "mpv")
+                                ("mov" . "mpv"))))
+
+(use-package peep-dired
+  :after dired
+  :hook (evil-normalize-keymaps . peep-dired-hook)
+  :config
+  (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+  (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file)
+  (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+  (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file)
+)
+#+end_src
+
+** Git
+#+begin_src emacs-lisp
+;(use-package seq) ;Temporary workaround due to dependency bullshit
+;(use-package magit
+; :after seq
+;  :ensure t)
+#+end_src
+
+** Neotree
+#+begin_src emacs-lisp
+(use-package neotree
+  :config
+  (setq neo-smart-open t
+        neo-show-hidden-files t
+        neo-window-width 55
+        neo-window-fixed-size nil
+        inhibit-compacting-font-caches t
+        projectile-switch-project-action 'neotree-projectile-action)
+  (add-hook 'neo-after-create-hook
+    #'(lambda (_)
+        (with-current-buffer (get-buffer neo-buffer-name)
+          (setq tuncate-lines t)
+          (setq word-wrap nil)
+          (make-local-variable 'auto-hscroll-mode)
+          (setq auto-hscroll-mode nil)))))
+#+end_src
+
+** Projectile
++Projectile is a project interaction library
+
+#+begin_src emacs-lisp
+(use-package projectile
+  :diminish
+  :config
+  (projectile-mode 1))
+
+#+end_src
+
+** RSS
+#+begin_src emacs-lisp
+;(use-package elfeed)
+#+end_src
+
+** Shells and Terminals
+
+*** Eshell
+#+begin_src emacs-lisp
+  (use-package eshell-syntax-highlighting
+    :after esh-mode
+    :config
+    (eshell-syntax-highlighting-global-mode +1))
+
+  (setq eshell-rc-script (concat user-emacs-directory "eshell/profile")
+	eshell-aliases-file (concat user-emacs-directory "eshell/aliases")
+	eshell-history-size 5000
+	eshell-buffer-maximum-lines 5000
+	eshell-hist-ignoredups t
+	eshell-scroll-to-bottom-on-input t
+	eshell-destroy-buffer-when-process-dies t
+        eshell-visual-commands'("bash" "fish" "htop" "ssh" "top" "zsh"))
+#+end_src
+
+*** Vterm
+#+begin_src emacs-lisp
+  (use-package vterm
+  :config
+  (setq vterm-max-scrollback 5000))
+#+end_src
+
+*** Vterm-Toggle
+#+begin_src emacs-lisp
+  (use-package vterm-toggle
+    :after vtferm
+    :config
+    (setq vterm-toggle-fullscreen-p nil)
+    (setq vterm-toggle-scope 'project)
+    (add-to-list 'display-buffer-alist
+		 '((lambda (buffer-or-name _)
+		       (let ((buffer (get-buffer buffer-or-name)))
+			 (with-current-buffer buffer
+			   (or (equal major-mode 'vterm-mode)
+			       (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+		   (display-buffer-reuse-window display-buffer-at-bottom)
+		   (reusable-frames . visible)
+                   (window-height . 0.3))))
+#+end_src
+
+** Sudo Edit
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :config
+      (dune/leader-keys
+	"fu" '(sudo-edit-find-file :wk "Open file as root")
+	"fU" '(sudo-edit :wk "Edit as root")))
+#+end_src
+
+** WhichKey
+#+begin_src emacs-lisp
+  (use-package which-key
+    :init
+    (which-key-mode 1)
+    :diminish
+    :config
+    (setq which-key-side-window-location 'bottom
+      which-key-sort-order #'which-key-key-order-alpha
+      which-key-sort-uppercase-first nil
+      which-key-add-column-padding 1
+      which-key-max-display-columns nil
+      which-key-min-display-lines 6
+      which-key-side-window-slot -10
+      which-key-side-window-max-height 0.25
+      which-key-idle-delay 0.8
+      which-key-max-description-length 25
+      which-key-allow-imprecise-window-fit t
+      which-key-seperator " -> "))
+#+end_src
+
+** WWW
+#+begin_src emacs-lisp
+(use-package eww)
+#+end_src
+
+* Org Mode Mods
+** Org Table of Contents
+#+begin_src emacs-lisp
+  (use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
+#+end_src
+
+** Bullets
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook 'org-ident-mode)
+  (use-package org-bullets)
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+** Electric Indent
+#+begin_src emacs-lisp
+  (electric-indent-mode -1)
+  (setq org-edit-src-content-indentation 0)
+#+end_src
+
+** Org Tempo
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src
+
+* Language Support
+#+begin_src emacs-lisp
+(use-package lua-mode)
+(use-package haskell-mode)
+#+end_src
+
+** Diminish
+#+begin_src emacs-lisp
+(use-package diminish)
+#+end_src
+
+** Flycheck
+*** Prerequisites
+- luacheck
+- python-pylint
+- haskell-ghc
+
+*** Initalize
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure t
+  :defer t
+  :diminish
+  :init (global-flycheck-mode))
+#+end_src
+
+* Customization
+** App Launcher
++ Rofi Replacement
+#+begin_src emacs-lisp
+  (defun emacs-counsel-launcher ()
+    (interactive)
+    (with-selected-frame
+      (make-frame '((name . "emacs-run-launcher")
+		    (minibuffer . only)
+		    (fullscreen . 0)
+		    (undecorated . t)
+		    (internal-border-width . 10)
+		    (width . 80)
+		    (height .11)))
+      (unwind-protect
+	 (counsel-linux-app)
+         (delete-frame))))
+#+end_src
+
+** Colors
+#+begin_src emacs-lisp
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes/")
+(use-package doom-themes
+  :config
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t))
+(load-theme 'dune-dark t)
+
+;Rainbow mode
+(use-package rainbow-mode
+  :diminish
+  :hook org-mode prog-mode)
+#+end_src
+
+** Dashboard
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :init
+    (setq initial-buffer-choice 'dashboard-open)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-banner-logo-title "Dune Emacs")
+    (setq dashboard-startup-banner "~/.config/emacs/images/emacs-dash.png")
+    (setq dashboard-center-content nil)
+    (setq dashboard-items '((recents . 5)
+			    (agenda . 5)
+			    (bookmarks . 3)
+                            (projects . 3)
+			    (registers . 3)))
+    :config
+    (dashboard-modify-heading-icons '((recents . "file-text")
+				      (bookmarks . "book")))
+    (dashboard-setup-startup-hook))
+
+#+end_src
+
+** Fonts
+#+begin_src emacs-lisp
+	;All-The-Icons
+	(use-package all-the-icons
+	  :ensure t
+	  :if (display-graphic-p)
+	  :config
+	  (if (not (eq system-type 'darwin))
+	    ;; Use 'prepend for the NS and Mac ports or Emacs will crash.
+	    (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'append)
+	    (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'append)
+	    (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'append)
+	    (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'append)
+	    (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'append)
+	    (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'append))
+  )
+	(use-package all-the-icons-dired
+	  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+
+	;General Font Settings
+	(set-face-attribute 'default nil
+	  :font "JetBrains Mono"
+	  :height 110
+	  :weight 'medium)
+	(set-face-attribute 'variable-pitch nil
+	  :font "Ubuntu"
+	  :height 120
+	  :weight 'medium)
+	(set-face-attribute 'fixed-pitch nil
+	  :font "JetBrains Mono"
+	  :height 110
+	  :weight 'medium)
+
+	;Keyword and Comment Italics
+	(set-face-attribute 'font-lock-comment-face nil
+	  :slant 'italic)
+	(set-face-attribute 'font-lock-keyword-face nil
+	  :slant 'italic)
+
+	;Bug fixes
+	(add-to-list 'default-frame-alist '(font . "JetBrains Mono-11"))
+
+	;Spacing
+	(setq-default linespacing 0.12)
+
+	;Zooming
+	(global-set-key (kbd "C-=") 'text-scale-increase)
+	(global-set-key (kbd "C--") 'text-scale-decrease)
+	(global-set-key (kbd "<C-wheel-up>")  'text-scale-increase)
+	(global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+#+end_src
+
+** Title
+#+begin_src emacs-lisp
+  (setq frame-title-format (list "%b - Dune Emacs (" user-login-name "@" system-name ")")) 
+#+end_src
+
+** Tweaks
+#+begin_src emacs-lisp
+  ;Declutter
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+
+  ;Line Numbers
+  (global-display-line-numbers-mode 1)
+  (global-visual-line-mode t)
+#+end_src
+
+* Functions
+** reload-init-file: Reload Config
+#+begin_src emacs-lisp
+  (defun reload-init-file ()
+    (interactive)
+    (load-file user-init-file) ;Uncomment this line if you run into issues
+    (load-file user-init-file))
+#+end_src
+** Buffer Move
+#+begin_src emacs-lisp
+  (load-file (concat user-emacs-directory "buffer-move.el"))
+#+end_src

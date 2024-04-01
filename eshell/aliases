@@ -1,0 +1,3 @@
+# We can use eshell aliases to integrate the system shell within emacs
+alias ff find-file $1
+alias less view-file $1
