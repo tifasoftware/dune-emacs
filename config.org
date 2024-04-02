@@ -40,6 +40,7 @@
   - [[#tweaks][Tweaks]]
 - [[#functions][Functions]]
   - [[#reload-init-file-reload-config][reload-init-file: Reload Config]]
+  - [[#refresh-internet-content][Refresh Internet Content]]
   - [[#buffer-move][Buffer Move]]
 
 * Critical Mods
@@ -80,7 +81,8 @@
   (dune/leader-keys
       "a"  '(:ignore t :wk "Apps")
       "aw" '(eww :wk "Web Browser")
-      "af" '(elfeed :wk "RSS Feed"))
+      "af" '(elfeed :wk "RSS Feed")
+      "ar" '(refresh-everything :wk "Refresh Internet Content"))
   ;Buffer Keybinds
   (dune/leader-keys
       "b"  '(:ignore t :wk "Buffer")
@@ -719,11 +721,20 @@ Completion Engine
 * Functions
 ** reload-init-file: Reload Config
 #+begin_src emacs-lisp
-  (defun reload-init-file ()
-    (interactive)
-    (load-file user-init-file) ;Uncomment this line if you run into issues
-    (load-file user-init-file))
+(defun reload-init-file ()
+  (interactive)
+  (refresh-everything)
+  (load-file user-init-file) ;Uncomment this line if you run into issues
+  (load-file user-init-file))
 #+end_src
+** Refresh Internet Content
+#+begin_src emacs-lisp
+(defun refresh-everything ()
+  (interactive)
+  (elfeed-update)
+)
+#+end_src
+
 ** Buffer Move
 #+begin_src emacs-lisp
   (load-file (concat user-emacs-directory "buffer-move.el"))
