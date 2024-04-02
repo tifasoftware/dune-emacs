@@ -720,8 +720,6 @@ Completion Engine
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode t)
 
-;Automatically Update Internet Content
-(refresh-everything)
 #+end_src
 
 * Functions
@@ -739,6 +737,9 @@ Completion Engine
   (interactive)
   (elfeed-update)
 )
+
+;Automatically Update Internet Content
+;(refresh-everything)
 #+end_src
 
 ** Buffer Move
