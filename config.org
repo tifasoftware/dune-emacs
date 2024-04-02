@@ -435,7 +435,8 @@ Completion Engine
   (setq elfeed-feeds '(
 "https://github.com/TifaSoftware/dune-emacs/commits/master.atom" ;Dune-emacs updates
 "https://archlinux.org/feeds/packages/all/stable-repos/" ; Arch Linux Updates
-)))
+))
+  (add-hook 'emacs-startup-hook (lambda () (run-at-time 5 5 'elfeed-update))))
 #+end_src
 
 ** Shells and Terminals
