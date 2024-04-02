@@ -432,7 +432,10 @@ Completion Engine
 (use-package elfeed
   :ensure t
   :config
-  (setq elfeed-feeds '("https://github.com/TifaSoftware/dune-emacs/commits/master.atom")))
+  (setq elfeed-feeds '(
+"https://github.com/TifaSoftware/dune-emacs/commits/master.atom" ;Dune-emacs updates
+"https://archlinux.org/feeds/packages/all/stable-repos/" ; Arch Linux Updates
+)))
 #+end_src
 
 ** Shells and Terminals
@@ -708,14 +711,17 @@ Completion Engine
 
 ** Tweaks
 #+begin_src emacs-lisp
-  ;Declutter
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+;Declutter
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
-  ;Line Numbers
-  (global-display-line-numbers-mode 1)
-  (global-visual-line-mode t)
+;Line Numbers
+(global-display-line-numbers-mode 1)
+(global-visual-line-mode t)
+
+;Automatically Update Internet Content
+(refresh-everything)
 #+end_src
 
 * Functions
