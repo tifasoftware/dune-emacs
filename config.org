@@ -60,7 +60,7 @@
   (use-package evil-collection
     :after evil
     :config
-    (setq evil-collection-mode-list '(dashboard dired ibuffer magit vterm))
+    (setq evil-collection-mode-list '(dashboard dired ibuffer magit vterm elfeed eww))
     (evil-collection-init))
   (use-package evil-tutor)
 #+end_src
@@ -76,6 +76,11 @@
   :prefix "SPC"
   :global-prefix "M-SPC")
 
+  ;Application keybinds
+  (dune/leader-keys
+      "a"  '(:ignore t :wk "Apps")
+      "aw" '(eww :wk "Web Browser")
+      "af" '(elfeed :wk "RSS Feed"))
   ;Buffer Keybinds
   (dune/leader-keys
       "b"  '(:ignore t :wk "Buffer")
@@ -422,7 +427,10 @@ Completion Engine
 
 ** RSS
 #+begin_src emacs-lisp
-;(use-package elfeed)
+(use-package elfeed
+  :ensure t
+  :config
+  (setq elfeed-feeds '("https://github.com/TifaSoftware/dune-emacs/commits/master.atom")))
 #+end_src
 
 ** Shells and Terminals
@@ -515,8 +523,19 @@ Completion Engine
 #+end_src
 
 ** WWW
+- No Package Installation neccessary for eww
+- eww will however have extensions
 #+begin_src emacs-lisp
-(use-package eww)
+(use-package shrface
+  :ensure t
+  :diminish t
+  :init
+  (add-hook 'eww-after-render-hook #'shrface-mode)
+  :config
+  (shrface-basic)
+  (shrface-trial)
+  (shrface-default-keybindings)
+  (setq shrface-href-versatile t))
 #+end_src
 
 * Org Mode Mods
